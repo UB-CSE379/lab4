@@ -25,13 +25,14 @@ read_tiva_pushbutton:
 
           ; Your code is placed here
     MOV r4, #1;
-    MOV r5, #0;
 
     ;Initlize r1 with Clock Address
     MOV r1, #0xE000
     MOVT r1, #0x400F
     ;NEED TO ENABLE CLOCK FOR ONLY PORT F HERE
-    STRB r4, [r1, #0x608]
+    LDRB r5, [r1, #0x608]
+    ORR r5, r5, #0x10	; find specfic port 
+    STRB r5, [r1, #0x608] ;enable clock for Port F
 
     ;Initlize r3 with Port F address
     MOV r3, #0x5000

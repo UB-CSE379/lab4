@@ -5,6 +5,7 @@ lab4:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
           ; Your code is placed here
+    BL read_tiva_pushbutton
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
@@ -29,6 +30,7 @@ read_tiva_pushbutton:
     ;Initlize r1 with Clock Address
     MOV r1, #0xE000
     MOVT r1, #0x400F
+    ;NEED TO ENABLE CLOCK FOR ONLY PORT F HERE
     STRB r4, [r1, #0x608]
 
     ;Initlize r3 with Port F address

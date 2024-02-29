@@ -67,7 +67,7 @@ read_tiva_pushbutton:
     MOV r1, #0xE000
     MOVT r1, #0x400F
     LDRB r5, [r1, #0x608] 
-    ORR r5, r5, #0x10	; Find Port F 
+    ORR r5, r5, #0x20	; Find Port F    0010 0000
     STRB r5, [r1, #0x608] ; Enable clock for Port F
 
     ;Initialize r3 with Port F address
@@ -91,8 +91,8 @@ read_tiva_pushbutton:
     LDRB r9, [r3, #0x3FC] ;GPIODATA
     AND r9, r9, #0x10	; 
 
-    CMP r9, #0 ; check if pin is being pressed
-    BEQ PRESS ; if r9 == 0, r0 = 1
+    CMP r9, #0x10 ; check if pin is being pressed
+    BNE PRESS ; if r9 == 0, r0 = 1
     MOV r0, #0 ; if r9 == 1, r0 = 0
     B STOP
 

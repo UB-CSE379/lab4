@@ -16,6 +16,7 @@ uart_init:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
           ; Your code is placed here
+	;BL read_from_push_btns
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
@@ -24,6 +25,7 @@ gpio_btn_and_LED_init:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
           ; Your code is placed here
+    ;BL read_from_push_btns
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
@@ -90,18 +92,37 @@ read_from_push_btns:
  					  ; if r9 == 0000 0010 SW4 is pressed
  					  ; if r9 == 0000 0100 SW3 is pressed
  					  ; if r9 == 0000 1000 SW2 is pressed
+
+ 	;Find which button was pressed
  	CMP r9, #0x01 ; SW5 is pressed
  	BEQ PRESS_5
 
-PRESS5:
+ 	CMP r9, #0x02; SW4 is pressed
+ 	BEQ PRESS_4
 
-PRESS4:
+ 	CMP r9, #0x04; SW3 is pressed
+ 	BEQ PRESS_3
 
-PRESS3:
+ 	CMP r9, #0x08; SW2 is pressed
+ 	BEQ PRESS_2
 
-PRESS2:
+ 	MOV r0, #0 ; Nothing is pressed
+ 	B STOP_BTNS
 
+PRESS_5:
+	MOV r0, #5
+	B STOP_BTNS
+PRESS_4:
+	MOV r0, #4
+	B STOP_BTNS
+PRESS_3:
+	MOV r0, #3
+	B STOP_BTNS
+PRESS_2:
+	MOV r0, #2
+	B STOP_BTNS
 
+STOP_BTNS:
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
 

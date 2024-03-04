@@ -1,3 +1,5 @@
+
+
 	.text
 	.global uart_init
 	.global gpio_btn_and_LED_init
@@ -10,6 +12,8 @@
 	.global illuminate_RGB_LED
 	.global read_tiva_push_button
 	.global div_and_mod
+	.global string2int
+
 
 U0FR: 	.equ 0x18	; UART0 Flag Register
 
@@ -99,6 +103,9 @@ uart_init:
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
 
+;_________________________________________________________________________________________________________________________________________________
+
+
 gpio_btn_and_LED_init:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
@@ -167,6 +174,9 @@ gpio_btn_and_LED_init:
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
 
+;_________________________________________________________________________________________________________________________________________________
+
+
 output_character:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
@@ -182,6 +192,9 @@ LOOP2:
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
+
+;_________________________________________________________________________________________________________________________________________________
+
 
 read_character:
 	PUSH {r4-r12,lr}	; Spill registers to stack
@@ -201,6 +214,9 @@ LOOP1:
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
+
+;_________________________________________________________________________________________________________________________________________________
+
 
 read_string:
 	PUSH {r4-r12,lr}	; Spill registers to stack
@@ -223,6 +239,9 @@ ENTER:
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
+
+;_________________________________________________________________________________________________________________________________________________
+
 
 output_string:
 	PUSH {r4-r12,lr}	; Spill registers to stack
@@ -247,6 +266,50 @@ EXIT:
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
 
+;_________________________________________________________________________________________________________________________________________________
+
+
+string2int:
+	PUSH {r4-r12,lr} 	; Store any registers in the range of r4 through r12
+							; Your code for your string2int routine is placed here
+
+    MOV r2, #0
+    MOV r3, #10            ; Base val
+    MOV r8, #0             ;flag for neg nums
+    LDRB r4, [r0]          ; Load
+    CMP r4, #'-'           ; Compare ASCII value
+    BNE conv_loop
+    ADD r0, r0, #1         ; If '-', skip
+    MOV r8, #1             ; Set flag
+
+conv_loop:
+    LDRB r4, [r0], #1      ; Load a byte, increment r0
+    CMP r4, #0
+    BEQ conver_d    ; If byte is NULL, done with conversion
+
+    SUB r4, r4, #0x30      ; Convert ASCII digit to int
+    MUL r2, r2, r3         ; Multiply result by 10
+    ADD r2, r2, r4         ; Add to accumulator
+
+    B conv_loop         ; Loop
+
+conver_d:
+    CMP r8, #1             ; Check if the number was neg
+    BEQ make_neg      ; If neg adjust
+    B move_res          ; move result into r0
+
+make_neg:
+    RSB r2, r2, #0             ; Negate
+
+move_res:
+    MOV r0, r2
+    POP {r4-r12,lr}
+
+	mov pc, lr
+
+;_________________________________________________________________________________________________________________________________________________
+
+
 read_from_push_btns:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
@@ -255,6 +318,7 @@ read_from_push_btns:
     MOV r3, #0x7000
     MOVT r3, #0x4000
 
+LOOP20:
  	;GPIODATA
  	LDRB r9, [r3, #0x3FC]
  	AND r9, r9, #0x0F ; if r9 == 0000 0001 SW5 is pressed
@@ -275,8 +339,8 @@ read_from_push_btns:
  	CMP r9, #0x08; SW2 is pressed
  	BEQ PRESS_2
 
- 	MOV r0, #0 ; Nothing is pressed
- 	B STOP_BTNS
+ 	;MOV r0, #0 ; Nothing is pressed
+ 	B LOOP20
 
 PRESS_5:
 	MOV r0, #5
@@ -295,6 +359,9 @@ STOP_BTNS:
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
 
+;_________________________________________________________________________________________________________________________________________________
+
+
 illuminate_LEDs:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
@@ -304,7 +371,7 @@ illuminate_LEDs:
     ;MOV r0, #1 ; Second LED
     ;MOV r0, #2 ; Third LED
     ;MOV r0, #3; 4th LED
-    MOV r0, #5 ; ALL LEDS
+    ;MOV r0, #5 ; ALL LEDS
 
 	; Get Port B Base Address
 	MOV r6, #0x5000
@@ -352,6 +419,9 @@ LED_STOP:
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
+
+;_________________________________________________________________________________________________________________________________________________
+
 
 illuminate_RGB_LED:
 
@@ -432,6 +502,9 @@ COLOR_STOP:
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
 
+;_________________________________________________________________________________________________________________________________________________
+
+
 read_tiva_push_button:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
@@ -458,6 +531,8 @@ STOP:
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
+
+;_________________________________________________________________________________________________________________________________________________
 
 div_and_mod:
 	PUSH {r4-r12,lr}	; Spill registers to stack

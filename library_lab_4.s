@@ -11,12 +11,90 @@
 	.global read_tiva_push_button
 	.global div_and_mod
 
+U0FR: 	.equ 0x18	; UART0 Flag Register
+
 
 uart_init:
-	PUSH {r4-r12,lr}	; Spill registers to stack
+	PUSH {r4-r12,lr} 	; Store any registers in the range of r4 through r12
+							; Your code for your uart_init routine is placed here
+	MOV r0, #0xE618
+    MOVT r0, #0x400F
+    MOV r1, #0x1
+    STR r1, [r0]
 
-          ; Your code is placed here
-	;BL read_from_push_btns
+
+
+    MOV r0, #0xE608
+    MOVT r0, #0x400F
+    MOV r1, #0x1
+    STR r1, [r0]
+
+
+
+    MOV r0, #0xC030
+    MOVT r0, #0x4000
+    MOV r1, #0x0
+    STR r1, [r0]
+
+
+
+     MOV r0, #0xC024
+    MOVT r0, #0x4000
+    MOV r1, #8
+    STR r1, [r0]
+
+
+
+    MOV r0, #0xC028
+    MOVT r0, #0x4000
+    MOV r1, #44
+    STR r1, [r0]
+
+
+
+    MOV r0, #0xCFC8
+    MOVT r0, #0x4000
+    MOV r1, #0x0
+    STR r1, [r0]
+
+
+
+    MOV r0, #0xC02C
+    MOVT r0, #0x4000
+    MOV r1, #0x60
+    STR r1, [r0]
+
+
+
+    MOV r0, #0xC030
+    MOVT r0, #0x4000
+    MOV r1, #0x301
+    STR r1, [r0]
+
+
+
+    MOV r0, #0x451C
+    MOVT r0, #0x4000
+    MOV r1, #0x03
+    LDR r2 ,[r0]
+    ORR r1 , r1, r2
+    STR r1, [r0]
+
+
+    MOV r0, #0x4420
+    MOVT r0, #0x4000
+    MOV r1, #0x03
+    LDR r2 ,[r0]
+    ORR r1 , r1, r2
+    STR r1, [r0]
+
+
+	MOV r0, #0x452C
+    MOVT r0, #0x4000
+    MOV r1, #0x11
+    LDR r2 ,[r0]
+    ORR r1 , r1, r2
+    STR r1, [r0]
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
@@ -79,7 +157,7 @@ gpio_btn_and_LED_init:
     ORR r12, r12, #0x10
     STRB r12, [r8, #0x510]
 
-    ; Set Pin 4 in Port F Digital, write 1
+    ; Set Pin pins 1-4 in Port F Digital, write 1
     LDRB r12, [r8, #0x51C]
     ORR r12, r12, #0x1E
     STRB r12, [r8, #0x51C]
@@ -93,6 +171,14 @@ output_character:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
           ; Your code is placed here
+	MOV r1, #0xC000			;Base address
+	MOVT r1, #0x4000
+LOOP2:
+	LDRB r2, [r1, #U0FR]
+	AND r2,r2, #0x20
+	CMP r2, #0x20
+	BEQ LOOP2
+	STRB r0,[r1]
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
@@ -101,6 +187,17 @@ read_character:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
           ; Your code is placed here
+  	MOV r1, #0xC000
+	MOVT r1, #0x4000
+
+LOOP1:
+
+	LDRB r2, [r1, #U0FR]
+	AND r2,r2, #0x10
+	CMP r2, #0x10
+	BEQ LOOP1
+
+	LDRB r0,[r1]
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
@@ -109,6 +206,20 @@ read_string:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
           ; Your code is placed here
+    MOV r4, r0
+
+LOOP_RS:
+    BL read_character
+    CMP r0, #0xD
+    BEQ ENTER
+    STRB r0, [r4]
+    BL output_character
+    ADD r4, r4, #1
+    B LOOP_RS
+
+ENTER:
+    MOV r0, #0x0
+    STRB r0, [r4]
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
@@ -117,6 +228,21 @@ output_string:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
           ; Your code is placed here
+    MOV r4, r0
+
+LOOP_OS:
+	LDRB r6, [r4]
+	ADD r4, r4, #1
+
+	CMP r6, #0x0
+	BEQ EXIT
+	MOV r0,r6
+	BL output_character
+	B LOOP_OS
+
+
+
+EXIT:
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
@@ -197,7 +323,7 @@ illuminate_LEDs:
     CMP r0, #3
     BEQ LED3
 
-    CMP r0, #5
+    CMP r0, #4
     BEQ LEDALL
 LED0:
 	ORR r1, r1, #0x01
@@ -329,7 +455,6 @@ PRESS:
 
 STOP:
 
-    ;
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr
@@ -338,6 +463,97 @@ div_and_mod:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
           ; Your code is placed here
+	;ldr r7, ptr_to_quotient
+	;ldr r8, ptr_to_remainder
+							; Your code for your div_and_mod routine is placed here
+	CMP r0, #0		; check if inital dividend is zero
+	BEQ ZEROS		; if yes branch to ZEROS
+
+	CMP r0,r1
+	BEQ SAME
+
+
+
+	MOV r2, #0 		; initialize register to 0 will be used as a counter
+	MOV r3, r0		; initialize register to 0 will be used to calc remainder
+	MOV r4, r1 		; copy of divisor used at end to calc remainder
+
+
+	CMP r0, #0		;compare with zero
+	BLT LZERO		;branch to LZERO if dividend is negative
+	BGT GZERO		;branch to GZERO if dividend is positive
+
+GZERO:
+	CMP r1, #0 		;check if divisor is negative
+	BGT	POSDIVG
+	RSB r4, r4, #0
+	BLT NEGDIVG
+
+NEGDIVG:
+	ADD r3, r3, r1	;subtract dividend copied in r3 by divisor
+	CMP r3, #0		;Comparing r3 to 0
+	SUB r2, r2, #1	;incrementing counter
+	BGT NEGDIVG		;if r3 is greater than zero loop back to NEGDIVG
+	ADD r2, r2, #1	;decrement counter since remainder is encountered
+	MOV r0, r2		;counter is moved to r0 as quotient
+	RSB r1, r3, #0	;remainder is stored in r1
+	SUB r1, r4, r1
+	B LAST			;branch to end
+
+POSDIVG:
+	SUB r3, r3, r1	;subtract dividend copied in r3 by divisor
+	CMP r3, #0		;Comparing r3 to 0
+	ADD r2, r2, #1	;incrementing counter
+	BGT POSDIVG		;if r3 is greater than zero loop back to GZERO
+	SUB r2, r2, #1	;decrement counter since remainder is encountered
+	MOV r0, r2		;counter is moved to r0 as quotient
+	RSB r1, r3, #0	;remainder is flipped from negative to positive and stored in r1
+	SUB r1, r4, r1
+	B LAST			;branch to end
+
+
+LZERO:
+	CMP r1, #0 		;check if divisor is negative
+	BGT	POSDIVL
+	RSB r4, r4, #0
+	BLT NEGDIVL
+
+POSDIVL:
+	ADD r3, r3, r1
+	SUB r2,r2, #1
+	CMP r3, #0
+	BLT POSDIVL
+	ADD r2,r2, #1
+	MOV r0, r2		;counter is moved to r0 as quotient
+	MOV r1, r3		;remainder is stored in r1
+	SUB r1, r4, r1
+	B LAST			;branch to end
+
+NEGDIVL:
+	SUB r3, r3, r1
+	ADD r2,r2, #1
+	CMP r3, #0
+	BLT NEGDIVL
+	SUB r2,r2, #1
+	MOV r0, r2		;counter is moved to r0 as quotient
+	SUB r1, r4, r3		;remainder is stored in r1
+	B LAST			;branch to end
+
+
+ZEROS:
+	MOV r0, #0		;assigns zero to quotient
+	MOV r1, #0		;assigns zero to remainder
+	B LAST
+
+SAME:
+	MOV r0, #1
+	MOV r1, #0
+	B LAST
+
+
+LAST:
+	MOV r7, r0
+	MOV r8, r1
 
 	POP {r4-r12,lr}  	; Restore registers from stack
 	MOV pc, lr

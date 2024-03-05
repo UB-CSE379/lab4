@@ -227,6 +227,12 @@ ALICE:
 
 	LDR r0, ptr_to_alice1
 	BL output_string
+
+	MOV r0, #0xD
+    BL output_character
+    MOV r0, #0xA
+    BL output_character
+
 	LDR r0, ptr_to_data1
 	BL read_string
 
@@ -241,6 +247,12 @@ ALICE:
 
    	LDR r0, ptr_to_button
    	BL output_string
+
+   	MOV r0, #0xD
+    BL output_character
+    MOV r0, #0xA
+    BL output_character
+
    	LDR r0, ptr_to_data1
    	BL read_string
 
@@ -280,9 +292,82 @@ READBUTTONA:
 	CMP r0, #2
 	BEQ SW2
 
+	B ERROR
+
+;________________________________________________________________________________________________________________
+
+SW2:
+	MOV r0, #0xD
+    BL output_character
+    MOV r0, #0xA
+    BL output_character
+
+	LDR r0, ptr_to_sw2
+	BL output_string
+
+	MOV r0, #0xD
+    BL output_character
+    MOV r0, #0xA
+    BL output_character
+
 	B END
 
 ;________________________________________________________________________________________________________________
+
+SW3:
+	MOV r0, #0xD
+    BL output_character
+    MOV r0, #0xA
+    BL output_character
+
+	LDR r0, ptr_to_sw3
+	BL output_string
+
+	MOV r0, #0xD
+    BL output_character
+    MOV r0, #0xA
+    BL output_character
+
+	B END
+
+;________________________________________________________________________________________________________________
+
+SW4:
+	MOV r0, #0xD
+    BL output_character
+    MOV r0, #0xA
+    BL output_character
+
+	LDR r0, ptr_to_sw4
+	BL output_string
+
+	MOV r0, #0xD
+    BL output_character
+    MOV r0, #0xA
+    BL output_character
+
+	B END
+
+;________________________________________________________________________________________________________________
+
+SW5:
+	MOV r0, #0xD
+    BL output_character
+    MOV r0, #0xA
+    BL output_character
+
+	LDR r0, ptr_to_sw5
+	BL output_string
+
+	MOV r0, #0xD
+    BL output_character
+    MOV r0, #0xA
+    BL output_character
+
+	B END
+
+;________________________________________________________________________________________________________________
+
 
 TIVA:
 	LDR r0, ptr_to_tiva1
